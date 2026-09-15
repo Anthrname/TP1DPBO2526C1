@@ -1,0 +1,15 @@
+# C++ compiled files
+*.exe
+*.o
+*.obj
+
+# Java compiled files
+*.class
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS generated files
+.DS_Store
+Thumbs.db
