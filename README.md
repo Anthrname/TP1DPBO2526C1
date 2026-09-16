@@ -60,27 +60,27 @@ classDiagram
 
 ### 1. C++
 ```bash
-cd TP1/CPP
+cd CPP
 g++ main.cpp -o main
 ./main
 ```
 
 ### 2. Java
 ```bash
-cd TP1/Java
+cd Java
 javac Main.java Bioskop.java
 java Main
 ```
 
 ### 3. Python
 ```bash
-cd TP1/Python
+cd Python
 python main.py
 ```
 
 ### 4. PHP
 ```bash
-cd TP1/PHP
+cd PHP
 php -S localhost:8000
 ```
 Buka browser dan akses `http://localhost:8000/index.php`.
