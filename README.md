@@ -47,7 +47,7 @@ classDiagram
 
 ---
 
-## Fitur Program
+## Fitur Utamas
 1. **Menampilkan Data Film**: Melihat seluruh daftar film yang tersimpan.
 2. **Menambah Data Film**: Menambahkan film baru ke dalam daftar.
 3. **Mengubah Data Film**: Mengedit informasi film berdasarkan ID.
@@ -83,20 +83,45 @@ python main.py
 cd PHP
 php -S localhost:8000
 ```
-Buka browser dan akses `http://localhost:8000/index.php`.
+akses ke sini bray `http://localhost:8000/index.php`.
 
 ---
 
-## Dokumentasi Output
-
-### C++
-![Output C++](Dokumentasi/cpp_output.png)
-
-### Java
-![Output Java](Dokumentasi/java_output.png)
-
-### Python
-![Output Python](Dokumentasi/python_output.png)
+### Dokumentasi C++ & Java & Phyton
+Interface Utama
+![Interface Utama](Dokumentasi/interface%20utama.png)
+---
+Opsi 1
+![Opsi 1](Dokumentasi/Opsi%201.png)
+---
+Opsi 2
+![Opsi 2](Dokumentasi/Opsi%202.png)
+---
+Opsi 3
+![Opsi 3](Dokumentasi/Opsi%203.png)
+---
+Data sebelum di hapus
+![Data Sebelum di hapus](Dokumentasi/data%20sebelum%20di%20hapus.png)
+---
+Data sesudah di hapus (opsi 4)
+![Data Sesudah di hapus (opsi 4)](Dokumentasi/data%20sesudah%20di%20hapus%20(opsi%204).png)
+---
+Opsi 5
+![Opsi 5](Dokumentasi/Opsi%205.png)
+---
+Opsi 6
+![Opsi 6](Dokumentasi/keluar%20interface%20(opsi%206).png)
 
 ### PHP
-![Output PHP](Dokumentasi/php_output.png)
+interface
+![interface](Dokumentasi/Interface.png)
+---
+tambah data film
+![tambah data film](Dokumentasi/tambah%20data%20film.png)
+---
+ubah data film
+![ubah data film](Dokumentasi/ubah%20data%20film.png)
+---
+cari data film
+![cari data film](Dokumentasi/cari%20data%20film.png)
+
