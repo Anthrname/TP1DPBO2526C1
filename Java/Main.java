@@ -29,13 +29,32 @@ public class Main {
     public static void tambahFilm() {
         System.out.println("\n=== TAMBAH DATA FILM ===");
         System.out.print("Masukkan ID Film    : ");
-        String id = scanner.nextLine();
+        String id = scanner.nextLine().trim();
+
+        // Validasi duplikasi ID
+        for (Bioskop f : daftarFilm) {
+            if (f.getId().equalsIgnoreCase(id)) {
+                System.out.println("Gagal: ID Film '" + id + "' sudah terdaftar! Gunakan ID lain.");
+                return;
+            }
+        }
+
         System.out.print("Masukkan Judul Film : ");
         String judul = scanner.nextLine();
         System.out.print("Masukkan Genre      : ");
         String genre = scanner.nextLine();
         System.out.print("Masukkan Durasi     : ");
-        int durasi = Integer.parseInt(scanner.nextLine());
+        int durasi = 0;
+        try {
+            durasi = Integer.parseInt(scanner.nextLine().trim());
+            if (durasi <= 0) {
+                System.out.println("Input durasi tidak valid! Durasi harus berupa angka positif.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Input durasi tidak valid! Durasi harus berupa angka.");
+            return;
+        }
         System.out.print("Masukkan Nama Foto  : ");
         String foto = scanner.nextLine();
 
@@ -46,9 +65,14 @@ public class Main {
 
     // Fungsi mengubah data film
     public static void ubahFilm() {
+        if (daftarFilm.isEmpty()) {
+            System.out.println("\nBelum ada data film untuk diubah.");
+            return;
+        }
+
         System.out.println("\n=== UBAH DATA FILM ===");
         System.out.print("Masukkan ID Film yang akan diubah: ");
-        String id = scanner.nextLine();
+        String id = scanner.nextLine().trim();
 
         int ketemu = -1;
         for (int i = 0; i < daftarFilm.size(); i++) {
@@ -64,7 +88,17 @@ public class Main {
             System.out.print("Masukkan Genre Baru : ");
             String genre = scanner.nextLine();
             System.out.print("Masukkan Durasi Baru: ");
-            int durasi = Integer.parseInt(scanner.nextLine());
+            int durasi = 0;
+            try {
+                durasi = Integer.parseInt(scanner.nextLine().trim());
+                if (durasi <= 0) {
+                    System.out.println("Input durasi tidak valid! Durasi harus berupa angka positif. Perubahan dibatalkan.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Input durasi tidak valid! Perubahan dibatalkan.");
+                return;
+            }
             System.out.print("Masukkan Foto Baru  : ");
             String foto = scanner.nextLine();
 
@@ -82,9 +116,14 @@ public class Main {
 
     // Fungsi menghapus data film
     public static void hapusFilm() {
+        if (daftarFilm.isEmpty()) {
+            System.out.println("\nBelum ada data film untuk dihapus.");
+            return;
+        }
+
         System.out.println("\n=== HAPUS DATA FILM ===");
         System.out.print("Masukkan ID Film yang akan dihapus: ");
-        String id = scanner.nextLine();
+        String id = scanner.nextLine().trim();
 
         int ketemu = -1;
         for (int i = 0; i < daftarFilm.size(); i++) {
@@ -104,9 +143,14 @@ public class Main {
 
     // Fungsi mencari data film
     public static void cariFilm() {
+        if (daftarFilm.isEmpty()) {
+            System.out.println("\nBelum ada data film untuk dicari.");
+            return;
+        }
+
         System.out.println("\n=== CARI DATA FILM ===");
         System.out.print("Masukkan ID Film yang dicari: ");
-        String id = scanner.nextLine();
+        String id = scanner.nextLine().trim();
 
         boolean ditemukan = false;
         for (int i = 0; i < daftarFilm.size(); i++) {
@@ -147,9 +191,9 @@ public class Main {
             System.out.print("Pilih menu (1-6): ");
 
             try {
-                menu = Integer.parseInt(scanner.nextLine());
+                menu = Integer.parseInt(scanner.nextLine().trim());
             } catch (Exception e) {
-                System.out.println("Menu tidak valid!");
+                System.out.println("Menu tidak valid! Masukkan angka antara 1 sampai 6.");
                 continue;
             }
 
@@ -173,7 +217,7 @@ public class Main {
                     System.out.println("Keluar dari program. Terima kasih!");
                     break;
                 default:
-                    System.out.println("Menu tidak valid!");
+                    System.out.println("Menu tidak valid! Pilihan harus berada di rentang 1-6.");
                     break;
             }
         } while (menu != 6);

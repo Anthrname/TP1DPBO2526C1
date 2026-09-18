@@ -47,12 +47,33 @@ classDiagram
 
 ---
 
-## Fitur Utamas
+## Fitur Utama
 1. **Menampilkan Data Film**: Melihat seluruh daftar film yang tersimpan.
 2. **Menambah Data Film**: Menambahkan film baru ke dalam daftar.
 3. **Mengubah Data Film**: Mengedit informasi film berdasarkan ID.
 4. **Menghapus Data Film**: Menghapus data film dari daftar berdasarkan ID.
 5. **Mencari Data Film**: Mencari data film berdasarkan ID.
+
+---
+
+## Penanganan Error & Validasi Input (Error Handling)
+
+Program telah dilengkapi dengan sistem penanganan error (*error handling*) dan validasi input yang komprehensif pada seluruh bahasa pemrograman (C++, Java, Python, dan PHP) guna mencegah program mengalami *crash*, *infinite loop*, maupun integritas data yang rusak.
+
+### Tabel Ringkasan Kasus Error & Penanganannya
+
+| No | Kasus / Skenario Error | Kondisi Penyebab | Solusi & Penanganan Program |
+|---|---|---|---|
+| 1 | **Pilihan Menu Tidak Valid** | Pengguna memasukkan opsi di luar rentang `1-6` atau memasukkan tipe data karakter/string (misal: `abc`, simbol). | Menampilkan pesan `"Menu tidak valid! Masukkan angka antara 1 sampai 6."`. Pada CLI, stream/buffer dibersihkan sehingga program tidak crash atau looping terus-menerus. |
+| 2 | **Duplikasi ID Film (Duplicate Primary Key)** | Pengguna memasukkan ID film yang sudah terdaftar saat menambah data film baru (*Create*). | Sistem memverifikasi keunikan ID sebelum data ditambahkan. Jika ID sudah ada, proses penambahan ditolak dan muncul pesan `"Gagal: ID Film '[ID]' sudah terdaftar! Gunakan ID lain."` (CLI) atau alert kesalahan (PHP). |
+| 3 | **Format & Nilai Durasi Tidak Valid** | Pengguna memasukkan nilai non-angka (huruf/simbol) atau angka $\le 0$ pada input durasi saat menambah atau mengubah data film. | Dilakukan validasi parsing numerik (*try-catch* / *stream validation*) dan pengecekan nilai positif (> 0). Jika tidak valid, muncul notifikasi `"Input durasi tidak valid! Durasi harus berupa angka positif."` dan perubahan dibatalkan. |
+| 4 | **ID Film Tidak Ditemukan saat Ubah Data** | Pengguna memasukkan ID film yang tidak terdapat di dalam daftar saat memilih opsi Ubah (*Update*). | Sistem memeriksa kecocokan ID. Jika tidak ditemukan, sistem menampilkan pesan `"Data film dengan ID tersebut tidak ditemukan!"` dan membatalkan pengubahan. |
+| 5 | **ID Film Tidak Ditemukan saat Hapus Data** | Pengguna memasukkan ID film yang tidak terdapat di dalam daftar saat memilih opsi Hapus (*Delete*). | Sistem menampilkan pesan `"Data film tidak ditemukan!"` dan daftar film tetap utuh. |
+| 6 | **Operasi pada Daftar Film Kosong** | Pengguna memilih opsi Tampilkan, Ubah, Hapus, atau Cari ketika daftar film belum memiliki data sama sekali. | Sistem memvalidasi ukuran list/array: <br>- **Tampilkan**: Menampilkan `"Belum ada data film."`<br>- **Ubah/Hapus/Cari**: Menampilkan notifikasi bahwa daftar film masih kosong sehingga proses tidak dilanjutkan sia-sia. |
+| 7 | **Pencarian Data Film Tidak Ditemukan** | Pengguna mencari film berdasarkan ID yang tidak ada di daftar. | Menampilkan pesan `"Film dengan ID [ID] tidak ditemukan."` (CLI) atau menampilkan baris `"Tidak ada data film."` pada tabel web PHP. |
+| 8 | **Immutabilitas ID pada Form Ubah (PHP Web)** | Pengguna mencoba mengganti ID film yang merupakan *primary key*. | Field ID dibuat berstatus `disabled / readonly` pada form pengubahan di PHP untuk menjaga konsistensi identitas data. |
+| 9 | **Penanganan Upload File Gambar & Fallback (PHP Web)** | Pengguna tidak mengunggah file poster, gagal upload, atau file fisik tidak ada di server. | - Jika poster tidak diunggah saat tambah data: Disetel file poster default (`default.jpg`).<br>- Jika poster tidak diganti saat edit: Foto lama dipertahankan.<br>- Jika file fisik hilang di folder `uploads/`: Terdapat *fallback handler* `file_exists()` agar tidak memicu *broken image*. |
+| 10 | **Pencegahan Penghapusan Data Tidak Sengaja (PHP Web)** | Pengguna tidak sengaja mengklik tombol Hapus pada antarmuka web. | Dilengkapi dialog konfirmasi JavaScript `confirm('Yakin ingin menghapus film ini?')` sebelum aksi penghapusan dieksekusi. |
 
 ---
 
@@ -83,11 +104,11 @@ python main.py
 cd PHP
 php -S localhost:8000
 ```
-akses ke sini bray `http://localhost:8000/index.php`.
+Akses melalui browser di: `http://localhost:8000/index.php`.
 
 ---
 
-### Dokumentasi C++ & Java & Phyton
+### Dokumentasi C++ & Java & Python
 Interface Utama
 ![Interface Utama](Dokumentasi/interface%20utama.png)
 ---

@@ -1,19 +1,20 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <limits>
 #include "Bioskop.cpp"
 
 using namespace std;
 
 // Fungsi untuk menampilkan semua data film
-void tampilkanFilm(vector<Bioskop>& daftarFilm) {
+void tampilkanFilm(const vector<Bioskop>& daftarFilm) {
     cout << "\n=== DAFTAR FILM BIOSKOP ===" << endl;
     if (daftarFilm.empty()) {
         cout << "Belum ada data film." << endl;
         return;
     }
 
-    for (int i = 0; i < daftarFilm.size(); i++) {
+    for (size_t i = 0; i < daftarFilm.size(); i++) {
         cout << "No. " << (i + 1) << endl;
         cout << "ID Film     : " << daftarFilm[i].getId() << endl;
         cout << "Judul Film  : " << daftarFilm[i].getJudul() << endl;
@@ -32,14 +33,28 @@ void tambahFilm(vector<Bioskop>& daftarFilm) {
     cout << "\n=== TAMBAH DATA FILM ===" << endl;
     cout << "Masukkan ID Film    : ";
     cin >> id;
-    cin.ignore();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    // Validasi Duplikasi ID
+    for (const auto& film : daftarFilm) {
+        if (film.getId() == id) {
+            cout << "Gagal: ID Film '" << id << "' sudah terdaftar! Gunakan ID lain." << endl;
+            return;
+        }
+    }
+
     cout << "Masukkan Judul Film : ";
     getline(cin, judul);
     cout << "Masukkan Genre      : ";
     getline(cin, genre);
     cout << "Masukkan Durasi     : ";
-    cin >> durasi;
-    cin.ignore();
+    if (!(cin >> durasi) || durasi <= 0) {
+        cout << "Input durasi tidak valid! Durasi harus berupa angka positif." << endl;
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cout << "Masukkan Nama Foto  : ";
     getline(cin, foto);
 
@@ -51,16 +66,21 @@ void tambahFilm(vector<Bioskop>& daftarFilm) {
 
 // Fungsi untuk mengubah data film
 void ubahFilm(vector<Bioskop>& daftarFilm) {
+    if (daftarFilm.empty()) {
+        cout << "\nBelum ada data film untuk diubah." << endl;
+        return;
+    }
+
     string id;
     cout << "\n=== UBAH DATA FILM ===" << endl;
     cout << "Masukkan ID Film yang akan diubah: ";
     cin >> id;
-    cin.ignore();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     int ketemu = -1;
-    for (int i = 0; i < daftarFilm.size(); i++) {
+    for (size_t i = 0; i < daftarFilm.size(); i++) {
         if (daftarFilm[i].getId() == id) {
-            ketemu = i;
+            ketemu = static_cast<int>(i);
             break;
         }
     }
@@ -74,8 +94,13 @@ void ubahFilm(vector<Bioskop>& daftarFilm) {
         cout << "Masukkan Genre Baru : ";
         getline(cin, genre);
         cout << "Masukkan Durasi Baru: ";
-        cin >> durasi;
-        cin.ignore();
+        if (!(cin >> durasi) || durasi <= 0) {
+            cout << "Input durasi tidak valid! Durasi harus berupa angka positif. Perubahan dibatalkan." << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return;
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "Masukkan Foto Baru  : ";
         getline(cin, foto);
 
@@ -92,15 +117,21 @@ void ubahFilm(vector<Bioskop>& daftarFilm) {
 
 // Fungsi untuk menghapus data film
 void hapusFilm(vector<Bioskop>& daftarFilm) {
+    if (daftarFilm.empty()) {
+        cout << "\nBelum ada data film untuk dihapus." << endl;
+        return;
+    }
+
     string id;
     cout << "\n=== HAPUS DATA FILM ===" << endl;
     cout << "Masukkan ID Film yang akan dihapus: ";
     cin >> id;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     int ketemu = -1;
-    for (int i = 0; i < daftarFilm.size(); i++) {
+    for (size_t i = 0; i < daftarFilm.size(); i++) {
         if (daftarFilm[i].getId() == id) {
-            ketemu = i;
+            ketemu = static_cast<int>(i);
             break;
         }
     }
@@ -114,14 +145,20 @@ void hapusFilm(vector<Bioskop>& daftarFilm) {
 }
 
 // Fungsi untuk mencari data film
-void cariFilm(vector<Bioskop>& daftarFilm) {
+void cariFilm(const vector<Bioskop>& daftarFilm) {
+    if (daftarFilm.empty()) {
+        cout << "\nBelum ada data film untuk dicari." << endl;
+        return;
+    }
+
     string id;
     cout << "\n=== CARI DATA FILM ===" << endl;
     cout << "Masukkan ID Film yang dicari: ";
     cin >> id;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     bool ditemukan = false;
-    for (int i = 0; i < daftarFilm.size(); i++) {
+    for (size_t i = 0; i < daftarFilm.size(); i++) {
         if (daftarFilm[i].getId() == id) {
             cout << "\nData ditemukan:" << endl;
             cout << "ID Film     : " << daftarFilm[i].getId() << endl;
@@ -160,7 +197,10 @@ int main() {
         cout << "Pilih menu (1-6): ";
         
         if (!(cin >> menu)) {
-            break;
+            cout << "Menu tidak valid! Masukkan angka antara 1 sampai 6." << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
         }
 
         switch (menu) {
@@ -183,7 +223,7 @@ int main() {
                 cout << "Keluar dari program. Terima kasih!" << endl;
                 break;
             default:
-                cout << "Menu tidak valid!" << endl;
+                cout << "Menu tidak valid! Pilihan harus berada di rentang 1-6." << endl;
                 break;
         }
     } while (menu != 6);

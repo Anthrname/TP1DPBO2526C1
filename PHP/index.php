@@ -16,34 +16,65 @@ if (!isset($_SESSION['daftar_film']) || empty($_SESSION['daftar_film'])) {
     ];
 }
 
+// Inisialisasi pesan flash
+$pesanError = $_SESSION['error'] ?? null;
+$pesanSukses = $_SESSION['sukses'] ?? null;
+unset($_SESSION['error'], $_SESSION['sukses']);
+
 // PROSES: Tambah Film
 if (isset($_POST['tambah'])) {
-    $id = $_POST['id'];
-    $judul = $_POST['judul'];
-    $genre = $_POST['genre'];
-    $durasi = (int)$_POST['durasi'];
+    $id = trim($_POST['id'] ?? '');
+    $judul = trim($_POST['judul'] ?? '');
+    $genre = trim($_POST['genre'] ?? '');
+    $durasi = (int)($_POST['durasi'] ?? 0);
     $foto = "default.jpg";
 
-    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-        $fotoName = time() . '_' . $_FILES['foto']['name'];
-        move_uploaded_file($_FILES['foto']['tmp_name'], $uploadDir . $fotoName);
-        $foto = $fotoName;
+    // Validasi Duplikasi ID
+    $duplikat = false;
+    foreach ($_SESSION['daftar_film'] as $film) {
+        if (strcasecmp($film->getId(), $id) === 0) {
+            $duplikat = true;
+            break;
+        }
     }
 
-    $_SESSION['daftar_film'][] = new Bioskop($id, $judul, $genre, $durasi, $foto);
+    if (empty($id) || empty($judul) || empty($genre)) {
+        $_SESSION['error'] = "Gagal menambah data: Semua field harus diisi!";
+    } elseif ($duplikat) {
+        $_SESSION['error'] = "Gagal menambah data: ID Film '$id' sudah terdaftar! Gunakan ID lain.";
+    } elseif ($durasi <= 0) {
+        $_SESSION['error'] = "Gagal menambah data: Durasi film harus berupa angka positif lebih dari 0!";
+    } else {
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $fotoName = time() . '_' . basename($_FILES['foto']['name']);
+            move_uploaded_file($_FILES['foto']['tmp_name'], $uploadDir . $fotoName);
+            $foto = $fotoName;
+        }
+
+        $_SESSION['daftar_film'][] = new Bioskop($id, $judul, $genre, $durasi, $foto);
+        $_SESSION['sukses'] = "Data film '$judul' (ID: $id) berhasil ditambahkan!";
+    }
+
     header("Location: index.php");
     exit();
 }
 
 // PROSES: Hapus Film
 if (isset($_GET['hapus'])) {
-    $idHapus = $_GET['hapus'];
+    $idHapus = trim($_GET['hapus']);
+    $ditemukan = false;
     foreach ($_SESSION['daftar_film'] as $key => $film) {
-        if ($film->getId() == $idHapus) {
+        if (strcasecmp($film->getId(), $idHapus) === 0) {
+            $judulHapus = $film->getJudul();
             unset($_SESSION['daftar_film'][$key]);
             $_SESSION['daftar_film'] = array_values($_SESSION['daftar_film']); // Reset indeks array
+            $ditemukan = true;
+            $_SESSION['sukses'] = "Data film '$judulHapus' (ID: $idHapus) berhasil dihapus!";
             break;
         }
+    }
+    if (!$ditemukan) {
+        $_SESSION['error'] = "Gagal menghapus: Film dengan ID '$idHapus' tidak ditemukan!";
     }
     header("Location: index.php");
     exit();
@@ -51,23 +82,35 @@ if (isset($_GET['hapus'])) {
 
 // PROSES: Ubah Film
 if (isset($_POST['ubah'])) {
-    $id = $_POST['id'];
-    $judul = $_POST['judul'];
-    $genre = $_POST['genre'];
-    $durasi = (int)$_POST['durasi'];
+    $id = trim($_POST['id'] ?? '');
+    $judul = trim($_POST['judul'] ?? '');
+    $genre = trim($_POST['genre'] ?? '');
+    $durasi = (int)($_POST['durasi'] ?? 0);
 
-    foreach ($_SESSION['daftar_film'] as $film) {
-        if ($film->getId() == $id) {
-            $film->setJudul($judul);
-            $film->setGenre($genre);
-            $film->setDurasi($durasi);
+    if (empty($judul) || empty($genre)) {
+        $_SESSION['error'] = "Gagal mengubah data: Judul dan Genre tidak boleh kosong!";
+    } elseif ($durasi <= 0) {
+        $_SESSION['error'] = "Gagal mengubah data: Durasi film harus berupa angka positif!";
+    } else {
+        $ditemukan = false;
+        foreach ($_SESSION['daftar_film'] as $film) {
+            if (strcasecmp($film->getId(), $id) === 0) {
+                $film->setJudul($judul);
+                $film->setGenre($genre);
+                $film->setDurasi($durasi);
 
-            if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-                $fotoName = time() . '_' . $_FILES['foto']['name'];
-                move_uploaded_file($_FILES['foto']['tmp_name'], $uploadDir . $fotoName);
-                $film->setFoto($fotoName);
+                if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                    $fotoName = time() . '_' . basename($_FILES['foto']['name']);
+                    move_uploaded_file($_FILES['foto']['tmp_name'], $uploadDir . $fotoName);
+                    $film->setFoto($fotoName);
+                }
+                $ditemukan = true;
+                $_SESSION['sukses'] = "Data film '$judul' (ID: $id) berhasil diubah!";
+                break;
             }
-            break;
+        }
+        if (!$ditemukan) {
+            $_SESSION['error'] = "Gagal mengubah data: ID Film '$id' tidak ditemukan!";
         }
     }
     header("Location: index.php");
@@ -77,12 +120,15 @@ if (isset($_POST['ubah'])) {
 // Data yang diedit jika ada tombol Edit diklik
 $filmEdit = null;
 if (isset($_GET['edit'])) {
-    $idEdit = $_GET['edit'];
+    $idEdit = trim($_GET['edit']);
     foreach ($_SESSION['daftar_film'] as $film) {
-        if ($film->getId() == $idEdit) {
+        if (strcasecmp($film->getId(), $idEdit) === 0) {
             $filmEdit = $film;
             break;
         }
+    }
+    if (!$filmEdit) {
+        $pesanError = "Data film dengan ID '$idEdit' tidak ditemukan untuk diedit!";
     }
 }
 
@@ -183,12 +229,40 @@ foreach ($_SESSION['daftar_film'] as $film) {
             object-fit: cover;
             border-radius: 4px;
         }
+        .alert {
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
     </style>
 </head>
 <body>
 
     <h1>Sistem Data Bioskop</h1>
     <p>Program sederhana pengelolaan data film bioskop berbasis PHP & OOP.</p>
+
+    <!-- NOTIFIKASI / PESAN ERROR & SUKSES -->
+    <?php if ($pesanError): ?>
+        <div class="alert alert-danger">
+            ❌ <?= htmlspecialchars($pesanError) ?>
+        </div>
+    <?php endif; ?>
+    <?php if ($pesanSukses): ?>
+        <div class="alert alert-success">
+            ✅ <?= htmlspecialchars($pesanSukses) ?>
+        </div>
+    <?php endif; ?>
 
     <!-- FORM PENCARIAN -->
     <form method="GET" action="index.php" style="margin-bottom: 15px;">

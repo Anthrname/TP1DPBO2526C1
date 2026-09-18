@@ -31,7 +31,7 @@ public:
     }
 
     // Getter dan Setter
-    string getId() {
+    string getId() const {
         return this->id;
     }
 
@@ -39,7 +39,7 @@ public:
         this->id = id;
     }
 
-    string getJudul() {
+    string getJudul() const {
         return this->judul;
     }
 
@@ -47,7 +47,7 @@ public:
         this->judul = judul;
     }
 
-    string getGenre() {
+    string getGenre() const {
         return this->genre;
     }
 
@@ -55,7 +55,7 @@ public:
         this->genre = genre;
     }
 
-    int getDurasi() {
+    int getDurasi() const {
         return this->durasi;
     }
 
@@ -63,7 +63,7 @@ public:
         this->durasi = durasi;
     }
 
-    string getFoto() {
+    string getFoto() const {
         return this->foto;
     }
 
